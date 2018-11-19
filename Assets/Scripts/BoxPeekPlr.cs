@@ -21,10 +21,10 @@ public class BoxPeekPlr : MonoBehaviour {
 
 
     //Calls the box_ref's method GetInput to determine if it can peek or not. REF KNOWS ALL
-    void sendInput()
+    bool sendInput()
     {
        
-        box_ref.GetInput(this);
+        return box_ref.GetInput(this);
 
     }
 }

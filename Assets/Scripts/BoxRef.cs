@@ -79,65 +79,69 @@ public class BoxRef : MonoBehaviour {
      * This method is activated when input is received from a player
      **/
 
-     public void GetInput(BoxPeekPlr plr)
+     public bool GetInput(BoxPeekPlr plr)
     {
         if(plr == player_1)
         {
-            if (!player_1_is_peek) Peek(plr);
-            else { StopPeek(plr); }
+            if (!player_1_is_peek)return Peek(plr);
+            else {return StopPeek(plr); }
         }
         if (plr == player_2)
         {
-            if (!player_2_is_peek) Peek(plr);
-            else { StopPeek(plr); }
+            if (!player_2_is_peek) return Peek(plr);
+            else { return StopPeek(plr); }
         }
+        return false;
  
     }
 
     /**
      *This method will begin the peek for a player.
      * **/
-    public void Peek(BoxPeekPlr plr)
+    public bool Peek(BoxPeekPlr plr)
     {
         if(plr == player_1 )
         {
             if (player_2_is_peek)
             {
                 game_status = (int)game_states.PLAYER_1;
-                return;
+                return true;
             }
             player_1_is_peek = true;
-            return;
+            return true;
         }
         else
         {
             if (player_1_is_peek)
             {
                 game_status = (int)game_states.PLAYER_2;
-                return;
+                return true;
             }
             player_2_is_peek = true;
-            return;
+            return true;
         }
+        return false;
     }
 
     /**
      * Stops a player from peeking, if they are allowed per box peek rules.
      * Can prob have a more intelligent way of checking which player initiates the action....
      * */
-    public void StopPeek(BoxPeekPlr plr)
+    public bool StopPeek(BoxPeekPlr plr)
     {
         if(plr == player_1 && player_1_peek_time > 2)
         {
             player_1_is_peek = false;
             player_1_peek_time = 0.0f;
-            return;
+            return true;
         }
         if (plr == player_2 && player_2_peek_time > 2)
         {
             player_2_is_peek = false;
             player_2_peek_time = 0.0f;
+            return true;
         }
+        return false;
 
     }
 
