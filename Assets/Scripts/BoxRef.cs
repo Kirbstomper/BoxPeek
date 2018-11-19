@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class BoxRef : MonoBehaviour {
 
+    const float COMPLETE_PEEK_TIME = 4.0f;
+    const float COOLDOWN_TIME = 6.0f;
+    const float RETREAT_TIME = 2.0f;
     //The actual boxes. will be passed
     public BoxPeekPlr player_1;
     public BoxPeekPlr player_2;
@@ -14,6 +17,9 @@ public class BoxRef : MonoBehaviour {
     // Player peek booleans, will control logic and start the counter
     private bool player_1_is_peek;
     private bool player_2_is_peek;
+    //Player peek cooldown times after retreating from a peek.
+    private float player_1_cooldown;
+    private float player_2_cooldown;
     // This enum determines the game status.
     public enum game_states {NO_WIN = 0,
                             PLAYER_1 = 1,
@@ -45,10 +51,15 @@ public class BoxRef : MonoBehaviour {
             //Otherwise increment whoever is peeking and check if someone has won!
             else
             {
+                //Cooldown time tickdown
+                if (player_1_cooldown > 0.0f) player_1_cooldown -= Time.deltaTime;
+                if (player_2_cooldown > 0.0f) player_2_cooldown -= Time.deltaTime;
+
+                //Peek Time for if a player is peeking
                 if (player_1_is_peek) player_1_peek_time += Time.deltaTime;
                 if (player_2_is_peek) player_2_peek_time += Time.deltaTime;
 
-                if (player_1_peek_time >= 4)
+                if (player_1_peek_time >= COMPLETE_PEEK_TIME)
                 {
                     game_status = (int)game_states.PLAYER_1;
                     print("Game ended due complete peek! Player " + game_status + "Wins!");
@@ -56,7 +67,7 @@ public class BoxRef : MonoBehaviour {
                     game_status = (int)game_states.GAME_OVER;
 
                 }
-                if (player_2_peek_time >= 4)
+                if (player_2_peek_time >= COMPLETE_PEEK_TIME)
                 {
                     game_status = (int)game_states.PLAYER_2;
                     print("Game ended due complete peek! Player " + game_status + "Wins!");
@@ -83,13 +94,21 @@ public class BoxRef : MonoBehaviour {
     {
         if(plr == player_1)
         {
-            if (!player_1_is_peek)return Peek(plr);
-            else {return StopPeek(plr); }
+            if(player_1_cooldown == 0.0f)
+            {
+                if (!player_1_is_peek) return Peek(plr);
+                else { return StopPeek(plr); }
+            }
+            
         }
         if (plr == player_2)
         {
-            if (!player_2_is_peek) return Peek(plr);
-            else { return StopPeek(plr); }
+            if (player_2_cooldown == 0.0f)
+            {
+                if (!player_2_is_peek) return Peek(plr);
+                else { return StopPeek(plr); }
+            }
+          
         }
         return false;
  
@@ -110,7 +129,7 @@ public class BoxRef : MonoBehaviour {
             player_1_is_peek = true;
             return true;
         }
-        else
+        if(plr == player_2)
         {
             if (player_1_is_peek)
             {
@@ -129,16 +148,18 @@ public class BoxRef : MonoBehaviour {
      * */
     public bool StopPeek(BoxPeekPlr plr)
     {
-        if(plr == player_1 && player_1_peek_time > 2)
+        if(plr == player_1 && player_1_peek_time >= RETREAT_TIME)
         {
             player_1_is_peek = false;
             player_1_peek_time = 0.0f;
+            player_1_cooldown = COOLDOWN_TIME;
             return true;
         }
-        if (plr == player_2 && player_2_peek_time > 2)
+        if (plr == player_2 && player_2_peek_time >= RETREAT_TIME)
         {
             player_2_is_peek = false;
             player_2_peek_time = 0.0f;
+            player_2_cooldown = COOLDOWN_TIME;
             return true;
         }
         return false;
